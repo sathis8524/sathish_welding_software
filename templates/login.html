@@ -1,24 +1,36 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login - System Access</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <div class="container" style="max-width: 400px; margin-top: 50px;">
-        <h2>🔐 உள்நுழைவு (Login)</h2>
-        {% if msg %}<p style="color:red;">{{ msg }}</p>{% endif %}
-        <form method="POST">
-            <div class="form-group">
-                <label>பயனர் பெயர் (Username):</label>
-                <input type="text" name="username" required>
-            </div>
-            <div class="form-group">
-                <label>கடவுச்சொல் (Password):</label>
-                <input type="password" name="password" required>
-            </div>
-            <button type="submit">உள்நுழை (Login)</button>
-        </form>
-    </div>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .login-card {
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 30px;
+        max-width: 400px;
+        margin: 60px auto;
+        color: #ffffff;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 5px; color: #94a3b8; }
+    .form-control { width: 100%; padding: 10px; background: #0f172a; border: 1px solid #475569; color: #fff; border-radius: 6px; }
+    .submit-btn { width: 100%; padding: 10px; background: #0284c7; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+</style>
+
+<div class="login-card">
+    <h2 style="text-align: center; color: #38bdf8; margin-bottom: 20px;">🔑 பயனர் லாகின்</h2>
+    
+    <form method="POST" action="{{ url_for('login') }}">
+        <div class="form-group">
+            <label>பயனர்பெயர் (Username):</label>
+            <input type="text" name="username" class="form-control" placeholder="admin" required>
+        </div>
+        <div class="form-group">
+            <label>கடவுச்சொல் (Password):</label>
+            <input type="password" name="password" class="form-control" placeholder="1234" required>
+        </div>
+        <button type="submit" class="submit-btn">உள்ளே செல்</button>
+    </form>
+</div>
+{% endblock %}

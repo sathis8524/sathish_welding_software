@@ -1,0 +1,7 @@
+.vscode/
+instance/
+*.db
+*.sqlite3
+__pycache__/
+*.pyc
+roof_quotation.pdf

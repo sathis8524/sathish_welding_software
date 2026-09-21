@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    body {
+        background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.9)), 
+                    url('https://images.unsplash.com/photo-1541888946425-d0fbb186a5b7?auto=format&fit=crop&w=1600&q=80') center/cover fixed no-repeat;
+        min-height: 100vh;
+    }
+    .dashboard-container {
+        max-width: 1100px;
+        margin: 40px auto;
+        padding: 20px;
+        text-align: center;
+    }
+    .dash-header { color: #ffffff; margin-bottom: 35px; }
+    .dash-header h1 { color: #38bdf8; font-size: 2.2em; margin-bottom: 5px; }
+    .dash-header p { color: #94a3b8; font-size: 1.1em; }
+    
+    .grid-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 25px;
+    }
+    .card-item {
+        background: rgba(30, 41, 59, 0.75);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 16px;
+        padding: 30px 20px;
+        color: #ffffff;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    }
+    .card-item:hover {
+        transform: translateY(-8px) scale(1.02);
+        background: rgba(30, 41, 59, 0.95);
+        border-color: #38bdf8;
+        box-shadow: 0 12px 40px rgba(56, 189, 248, 0.25);
+    }
+    .card-icon { font-size: 3.2em; margin-bottom: 15px; }
+    .card-title { font-size: 1.3em; font-weight: bold; color: #f8fafc; margin-bottom: 8px; }
+    .card-desc { font-size: 0.88em; color: #cbd5e1; line-height: 1.4; }
+</style>
+
+<div class="dashboard-container">
+    <div class="dash-header">
+        <h1>🛠️ கூரை & சைட் மேலாண்மை மையம்</h1>
+        <p>நீங்கள் பயன்படுத்த விரும்பும் சேவையைத் தேர்ந்தெடுக்கவும்</p>
+    </div>
+
+    <div class="grid-cards">
+        <a href="{{ url_for('roof_calculator') }}" class="card-item">
+            <div class="card-icon">🏠</div>
+            <div class="card-title">கூரை செலவு கணக்கீடு</div>
+            <div class="card-desc">ஷீட், ஃபிரேம் & கூரைத் தேவையான மொத்தப் பொருட்களின் கணக்கீடு</div>
+        </a>
+
+        <a href="{{ url_for('truss_calculator') }}" class="card-item">
+            <div class="card-icon">🏗️</div>
+            <div class="card-title">ஹெவி ட்ரஸ் கணக்கீடு</div>
+            <div class="card-desc">பெரிய தொழிற்சாலை & ஹெவி ட்ரஸ் வடிவமைப்பு கணக்கீடுகள்</div>
+        </a>
+
+        <a href="{{ url_for('worker_entry') }}" class="card-item">
+            <div class="card-icon">📊</div>
+            <div class="card-title">தொழிலாளர் வருகைப் பதிவு</div>
+            <div class="card-desc">சைட் வருகை, தினசரி சம்பளம் மற்றும் வார பாக்கி நிலுவை</div>
+        </a>
+
+        <a href="{{ url_for('history') }}" class="card-item">
+            <div class="card-icon">📜</div>
+            <div class="card-title">கணக்கீட்டு வரலாறு</div>
+            <div class="card-desc">முந்தைய அனைத்துக் கணக்கீடுகள் மற்றும் சேமிக்கப்பட்ட பதிவுகள்</div>
+        </a>
+    </div>
+</div>
+{% endblock %}

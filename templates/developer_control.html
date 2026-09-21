@@ -1,67 +1,213 @@
 <!DOCTYPE html>
-<html>
+<html lang="ta">
 <head>
-    <title>Sathish Developer Hidden Panel</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sathish V - Master Developer Control Center</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #121212; color: #e0e0e0; margin: 0; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; background: #1e1e1e; padding: 25px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.6); }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
+        .header h2 { color: #bb86fc; margin: 0; }
+        .btn-back { background: #03dac6; color: #000; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; }
+        
+        /* Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .stat-card { background: #2d2d2d; padding: 18px; border-radius: 8px; border-left: 4px solid #bb86fc; }
+        .stat-card h4 { margin: 0; color: #aaa; font-size: 14px; }
+        .stat-card p { margin: 10px 0 0 0; font-size: 22px; font-weight: bold; color: #fff; }
+
+        .card { background: #2d2d2d; padding: 20px; border-radius: 8px; margin-bottom: 25px; }
+        .card h3 { color: #03dac6; margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 8px; }
+        
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 6px; font-weight: bold; font-size: 14px; color: #ccc; }
+        input { width: 100%; padding: 10px; background: #121212; border: 1px solid #444; color: #fff; border-radius: 6px; box-sizing: border-box; }
+        input:focus { border-color: #bb86fc; outline: none; }
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        
+        /* Tables */
+        .cost-table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #121212; border-radius: 6px; overflow: hidden; }
+        .cost-table th, .cost-table td { border: 1px solid #333; padding: 10px; text-align: left; font-size: 13px; }
+        .cost-table th { background: #332940; color: #bb86fc; }
+
+        .btn-submit { background: #bb86fc; color: #000; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; font-size: 15px; }
+        .btn-danger { background: #cf6679; color: #fff; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; }
+        
+        .pin-box { background: #251a30; border: 1px dashed #bb86fc; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px; }
+        .msg-alert { padding: 10px; border-radius: 6px; margin-bottom: 15px; text-align: center; font-weight: bold; }
+    </style>
 </head>
 <body>
-    <div class="container" style="max-width: 950px;">
-        <h2>👨‍💻 Sathish V - Developer Control Center</h2>
-        {% if not authenticated %}
-            <h3>Developer Key Verification:</h3>
-            {% if msg %}<p style="color:red;">{{ msg }}</p>{% endif %}
-            <form method="POST">
-                <input type="password" name="master_key" placeholder="Enter Developer Secret Master Key" required>
-                <button type="submit" style="margin-top:10px;">Access System Control</button>
-            </form>
-        {% else %}
-            <p style="color:green; font-weight:bold;">Status: Authenticated as Super Developer</p>
-            <hr>
-            <h3>1. All User Accounts & Passwords in System:</h3>
-            <table class="cost-table">
-                <tr>
-                    <th>ID</th>
-                    <th>Full Name</th>
-                    <th>Role</th>
-                    <th>Username</th>
-                    <th>Password (Unencrypted)</th>
-                </tr>
-                {% for u in users %}
-                <tr>
-                    <td>{{ u.id }}</td>
-                    <td>{{ u.full_name }}</td>
-                    <td>{{ u.role }}</td>
-                    <td><strong>{{ u.username }}</strong></td>
-                    <td style="color:red;"><strong>{{ u.password }}</strong></td>
-                </tr>
-                {% endfor %}
-            </table>
 
-            <hr style="margin-top:30px;">
-            <h3>2. Complete Database Work Logs (All Clients):</h3>
-            <table class="cost-table">
-                <tr>
-                    <th>Log ID</th>
-                    <th>Date</th>
-                    <th>Location</th>
-                    <th>Customer</th>
-                    <th>Work Details</th>
-                    <th>Expenses</th>
-                    <th>User</th>
-                </tr>
-                {% for log in logs %}
-                <tr>
-                    <td>{{ log.id }}</td>
-                    <td>{{ log.date }}</td>
-                    <td>{{ log.location }}</td>
-                    <td>{{ log.customer_name }}</td>
-                    <td>{{ log.work_details }}</td>
-                    <td>₹ {{ log.expenses }}</td>
-                    <td>{{ log.submitted_by }}</td>
-                </tr>
-                {% endfor %}
-            </table>
-        {% endif %}
+<div class="container">
+    <div class="header">
+        <h2>👨‍💻 Sathish V - Master Developer Dashboard</h2>
+        <a href="/dashboard" class="btn-back">⬅ Back to Dashboard</a>
     </div>
+
+    {% if msg %}
+        <div class="msg-alert" style="background: #332940; color: #bb86fc;">{{ msg }}</div>
+    {% endif %}
+
+    <!-- 🔒 1. ரகசிய மாஸ்டர் பின் சரிபார்ப்பு -->
+    {% if not authenticated %}
+        <div class="pin-box">
+            <h3 style="color: #bb86fc; margin-top: 0;">🔑 Developer Verification Required</h3>
+            <p style="color: #aaa; font-size: 14px;">Master Control அம்சங்களை அணுக ரகசிய PIN எண்ணை உள்ளிடவும்:</p>
+            <form method="POST" action="/developer_control">
+                <input type="password" name="master_key" placeholder="Enter Developer Secret Master PIN" style="max-width: 350px; text-align: center; font-size: 16px;" required>
+                <br>
+                <button type="submit" class="btn-submit" style="max-width: 350px; margin-top: 15px;">Access System Control</button>
+            </form>
+        </div>
+    {% else %}
+        
+        <p style="color:#03dac6; font-weight:bold; font-size: 14px; margin-bottom: 20px;">
+            ● Status: Authenticated as Super Developer (Sathish V)
+        </p>
+
+        <!-- 📊 2. நேரடி பயன்பாட்டுப் புள்ளியியல் (Live App Overview) -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h4>மொத்த மதிப்பீடுகள் (Total Estimates)</h4>
+                <p>{{ stats.total_estimates }} பதிவுகள்</p>
+            </div>
+            <div class="stat-card">
+                <h4>தொழிலாளர் & கஸ்டமர் லாக் பதிவுகள்</h4>
+                <p>{{ stats.total_worker_entries }} பதிவுகள்</p>
+            </div>
+            <div class="stat-card" style="border-left-color: #cf6679;">
+                <h4>கஸ்டமர் பாக்கி (Total Pending Balance)</h4>
+                <p>₹ {{ stats.total_pending_balance }}</p>
+            </div>
+        </div>
+
+        <!-- 👥 3. சிஸ்டத்தில் உள்ள அனைத்து லாகின் கணக்குகள் -->
+        <div class="card">
+            <h3>1. All User Accounts & Access Keys</h3>
+            <table class="cost-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Full Name</th>
+                        <th>Role</th>
+                        <th>Username</th>
+                        <th>Password (Unencrypted)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td>{{ u.id }}</td>
+                        <td>{{ u.full_name }}</td>
+                        <td>{{ u.role }}</td>
+                        <td><strong>{{ u.username }}</strong></td>
+                        <td style="color:#cf6679;"><strong>{{ u.password }}</strong></td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align:center; color:#888;">கணக்குகள் எதுவும் இல்லை.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 💰 4. சதுரடி கட்டணங்களை மாற்றுதல் (Rates Management) -->
+        <div class="card">
+            <h3>2. Default Calculation Rates Settings</h3>
+            <form method="POST" action="/developer_control">
+                <input type="hidden" name="action" value="save_settings">
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Truss Labor Rate (₹/sqft):</label>
+                        <input type="number" step="0.01" name="truss_labor_rate" value="25">
+                    </div>
+                    <div class="form-group">
+                        <label>Truss Full Contract Rate (₹/sqft):</label>
+                        <input type="number" step="0.01" name="truss_contract_rate" value="180">
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Roof Labor Rate (₹/sqft):</label>
+                        <input type="number" step="0.01" name="roof_labor_rate" value="20">
+                    </div>
+                    <div class="form-group">
+                        <label>Roof Full Contract Rate (₹/sqft):</label>
+                        <input type="number" step="0.01" name="roof_contract_rate" value="150">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>New App Login Password:</label>
+                    <input type="password" name="new_password" placeholder="புதிய அட்மின் பாஸ்வேர்ட் (தேவைப்பட்டால் மட்டும்)">
+                </div>
+                <button type="submit" class="btn-submit">💾 Save Default Rates & Password</button>
+            </form>
+        </div>
+
+        <!-- 📋 5. அனைத்து வாடிக்கையாளர்களின் பணிப் பதிவுகள் -->
+        <div class="card">
+            <h3>3. Complete Work & Payment Database Logs</h3>
+            <table class="cost-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Customer & Location</th>
+                        <th>Work Details</th>
+                        <th>Customer Balance</th>
+                        <th>Workers Info</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td>{{ log.date }}</td>
+                        <td><b>{{ log.customer_name }}</b><br><small>{{ log.location }}</small></td>
+                        <td>{{ log.work_details }}</td>
+                        <td style="color:#cf6679;"><b>₹ {{ log.customer_balance }}</b></td>
+                        <td>
+                            {% for w in log.workers %}
+                                • {{ w.name }} (₹{{ w.wage }})<br>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align:center; color:#888;">பதிவுகள் எதுவும் இல்லை.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ⚠️ 6. தரவு ரீசெட் மையம் (Danger Zone Data Reset) -->
+        <div class="card" style="border: 1px solid #cf6679;">
+            <h3 style="color: #cf6679;">4. Danger Zone - Data Management</h3>
+            
+            <div class="grid-2" style="margin-bottom: 15px;">
+                <form method="POST" action="/developer_control">
+                    <input type="hidden" name="action" value="clear_history">
+                    <button type="submit" class="btn-danger" onclick="return confirm('மதிப்பீட்டு வரலாறுகளை அழிக்கவா?');">🗑 Delete History Data Only</button>
+                </form>
+
+                <form method="POST" action="/developer_control">
+                    <input type="hidden" name="action" value="clear_workers">
+                    <button type="submit" class="btn-danger" onclick="return confirm('தொழிலாளர் & கஸ்டமர் லாக் பதிவுகளை அழிக்கவா?');">🗑 Delete Work Logs Only</button>
+                </form>
+            </div>
+
+            <form method="POST" action="/developer_control">
+                <input type="hidden" name="action" value="clear_all">
+                <button type="submit" class="btn-danger" style="background: #b00020; padding: 12px;" onclick="return confirm('⚠️ எச்சரிக்கை: VMK Roofing ஆப்பின் அனைத்து தரவுகளும் அழியும்!');">🔥 Full Master Reset (Clear All System Data)</button>
+            </form>
+        </div>
+
+    {% endif %}
+
+</div>
+
 </body>
 </html>

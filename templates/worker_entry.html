@@ -1,41 +1,162 @@
 <!DOCTYPE html>
-<html>
+<html lang="ta">
 <head>
-    <title>Site Work & Attendance Entry</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WORKER ATTENDANCE & CUSTOMER LOG</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #1a1a2e; color: #fff; margin: 0; padding: 20px; }
+        .container { max-width: 950px; margin: 0 auto; background: #16213e; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0f3460; padding-bottom: 10px; margin-bottom: 20px; }
+        .btn-dashboard { background: #e94560; color: #fff; text-decoration: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; }
+        .form-group { margin-bottom: 15px; }
+        label { font-weight: bold; display: block; margin-bottom: 5px; color: #e94560; font-size: 14px; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #0f3460; background: #0f3460; color: #fff; border-radius: 5px; box-sizing: border-box; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+        .section-box { background: #0f3460; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .btn-submit { background: #e94560; color: white; border: none; padding: 12px 20px; border-radius: 5px; font-size: 16px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 15px; }
+        
+        /* அட்டவணைகள் */
+        .worker-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .worker-table th { background: #16213e; color: #e94560; padding: 8px; text-align: left; font-size: 14px; }
+        .worker-table td { padding: 5px; border-bottom: 1px solid #16213e; }
+
+        .result-table { width: 100%; border-collapse: collapse; margin-top: 25px; background: #0f3460; border-radius: 8px; overflow: hidden; }
+        .result-table th, .result-table td { border: 1px solid #16213e; padding: 10px; text-align: left; font-size: 13px; }
+        .result-table th { background: #e94560; color: white; }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h2>🛠️ தினசரி வேலை & வருகைப் பதிவு</h2>
-        <p>வரவேற்கிறோம், <strong>{{ session.full_name }}</strong> | <a href="/logout">வெளியேறு (Logout)</a></p>
-        {% if msg %}<p style="color:green;">{{ msg }}</p>{% endif %}
-        <form method="POST">
-            <div class="form-group">
-                <label>தேதி (Date):</label>
-                <input type="date" name="date" required>
-            </div>
-            <div class="form-group">
-                <label>வேலை நடக்கும் ஊர் / இடம் (Site Location):</label>
-                <input type="text" name="location" placeholder="எ.கா: மதுரை, கே.கே.நகர்" required>
-            </div>
-            <div class="form-group">
-                <label>வாடிக்கையாளர் பெயர் (Customer Name):</label>
-                <input type="text" name="customer_name" required>
-            </div>
-            <div class="form-group">
-                <label>முடிந்த வேலை விவரம் (Work Details):</label>
-                <textarea name="work_details" rows="3" style="width:100%;" required placeholder="எ.கா: Truss Welding மற்றும் Purlin அமைக்கும் வேலை முடிந்தது"></textarea>
-            </div>
-            <div class="form-group">
-                <label>வந்த ஆட்கள் எண்ணிக்கை (Workers Count):</label>
-                <input type="number" name="workers_count" value="1" required>
-            </div>
-            <div class="form-group">
-                <label>அன்றைய சைட் செலவுகள் (Expenses ₹):</label>
-                <input type="number" step="any" name="expenses" value="0">
-            </div>
-            <button type="submit">பதிவு செய் (Submit Entry)</button>
-        </form>
+
+<div class="container">
+    <div class="top-bar">
+        <h2>📑 வருகைப் பதிவு & கஸ்டமர் கணக்கு</h2>
+        <a href="/dashboard" class="btn-dashboard">⬅ Back to Dashboard</a>
     </div>
+
+    <form method="POST" action="/worker_entry">
+        
+        <!-- 1. தள விவரங்கள் -->
+        <div class="grid-2">
+            <div class="form-group">
+                <label>பதிவு செய்யும் தேதி:</label>
+                <input type="date" id="attendance_date" name="attendance_date" value="{{ today_date }}" required>
+            </div>
+            <div class="form-group">
+                <label>கஸ்டமர் பெயர்:</label>
+                <input type="text" name="customer_name" placeholder="கஸ்டமர் பெயர்" required>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="form-group">
+                <label>வேலை பார்த்த இடம் (ஊர்):</label>
+                <input type="text" name="location" placeholder="எ.கா: திருநெல்வேலி" required>
+            </div>
+            <div class="form-group">
+                <label>என்ன வேலை பார்த்தோம்:</label>
+                <input type="text" name="work_details" placeholder="எ.கா: ட்ரஸ் ஃபேப்ரிகேஷன்" required>
+            </div>
+        </div>
+
+        <!-- 2. கஸ்டமர் பணப் பரிவர்த்தனை -->
+        <div class="section-box">
+            <h4 style="color: #e94560; margin-top: 0;">💰 கஸ்டமர் பேமெண்ட் விவரம்</h4>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>பேசிய மொத்தத் தொகை ₹:</label>
+                    <input type="number" name="total_agreed" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label>இன்று பெற்ற தொகை ₹:</label>
+                    <input type="number" name="received_amount" placeholder="0">
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. தொழிலாளர்கள் வருகை & கூலி -->
+        <h3 style="color: #e94560; margin-top: 20px;">👷 தொழிலாளர்கள் வருகை & கூலி</h3>
+        <table class="worker-table">
+            <thead>
+                <tr>
+                    <th style="width: 30%;">தொழிலாளி பெயர்</th>
+                    <th style="width: 20%;">வருகை</th>
+                    <th style="width: 25%;">தினக்கூலி ₹</th>
+                    <th style="width: 25%;">அட்வான்ஸ் ₹</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in range(1, 6) %}
+                <tr>
+                    <td><input type="text" name="worker{{ i }}_name" placeholder="தொழிலாளி {{ i }} பெயர்"></td>
+                    <td>
+                        <select name="worker{{ i }}_status">
+                            <option value="Present">Present</option>
+                            <option value="Absent">Absent</option>
+                        </select>
+                    </td>
+                    <td><input type="number" name="worker{{ i }}_wage" placeholder="0"></td>
+                    <td><input type="number" name="worker{{ i }}_advance" placeholder="0"></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <button type="submit" class="btn-submit">💾 பதிவு செய்</button>
+    </form>
+
+    <!-- 4. பதிவான விவரங்களின் அட்டவணை -->
+    <h3 style="margin-top: 30px; color: #e94560;">📋 பதிவான விவரங்கள்</h3>
+    <table class="result-table">
+        <thead>
+            <tr>
+                <th>தேதி</th>
+                <th>கஸ்டமர் & இடம்</th>
+                <th>கஸ்டமர் கணக்கு (மொத்தம் / பெற்றದ್ದು / பாக்கி)</th>
+                <th>தொழிலாளி விவரம்</th>
+                <th>கூலி / அட்வான்ஸ் / மீதி</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in workers %}
+            <tr>
+                <td>{{ item.date }}</td>
+                <td><b>{{ item.customer_name }}</b><br>({{ item.location }})<br><i>{{ item.work_details }}</i></td>
+                <td>
+                    மொத்தம்: ₹{{ item.total_agreed }}<br>
+                    பெற்றது: ₹{{ item.received_amount }}<br>
+                    <b style="color: #e94560;">பாக்கி: ₹{{ item.customer_balance }}</b>
+                </td>
+                <td colspan="2">
+                    <table style="width:100%; color:#fff; border-collapse:collapse;">
+                        {% for w in item.workers %}
+                        <tr style="border-bottom: 1px solid #16213e;">
+                            <td>{{ w.name }} ({{ w.status }})</td>
+                            <td>கூலி: ₹{{ w.wage }} | அட்வான்ஸ்: ₹{{ w.advance }} | <b>மீதி: ₹{{ w.balance }}</b></td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" style="text-align: center;">பதிவுகள் எதுவும் இல்லை.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var dateInput = document.getElementById("attendance_date");
+        if (!dateInput.value) {
+            var today = new Date().toISOString().split('T')[0];
+            dateInput.value = today;
+        }
+    });
+</script>
+
 </body>
 </html>

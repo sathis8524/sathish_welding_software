@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .hero-card {
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 16px;
+        padding: 30px 40px;
+        max-width: 800px;
+        margin: 40px auto;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        color: #ffffff;
+    }
+    
+    /* லோகோ பெரிதாக்கப்பட்டுள்ளது (120px -> 220px) */
+    .logo-img {
+        width: 300px;
+        height: auto;
+        margin-bottom: 15px;
+        object-fit: contain;
+    }
+
+    /* பிரதான தலைப்பு எழுத்து அளவு குறைக்கப்பட்டுள்ளது (2.2em -> 1.7em) */
+    .main-title {
+        color: #38bdf8;
+        font-size: 1.7em;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+
+    
+    .sub-title {
+        color: #cbd5e1;
+        font-size: 0.95em;
+        margin-bottom: 25px;
+        line-height: 1.5;
+    }
+
+    
+    .login-btn {
+        display: inline-block;
+        background: linear-gradient(135deg, #0284c7, #0369a1);
+        color: #ffffff;
+        padding: 10px 28px;
+        font-size: 0.95em;
+        font-weight: bold;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: 0.3s;
+        box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
+    }
+    .login-btn:hover {
+        background: linear-gradient(135deg, #0369a1, #0284c7);
+        transform: translateY(-2px);
+    }
+</style>
+
+<div class="hero-card">
+    <img src="{{ url_for('static', filename='logo.png.jpeg') }}" alt="Logo" class="logo-img">
+    <h1 class="main-title">கூரை வடிவமைப்பு பொருள் கணக்கீடு</h1>
+    <p class="sub-title">
+        ஹெவி ட்ரஸ் டிசைன் மற்றும் தொழிலாளர் மேலாண்மை தளம்
+    </p>
+    <a href="{{ url_for('login') }}" class="login-btn">
+        🔑 உள்நுழைய (Login to Access Dashboard)
+    </a>
+</div>
+{% endblock %}

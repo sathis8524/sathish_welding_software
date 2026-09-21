@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VMK Roofing - Roofing Calculator</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f172a; color: #fff; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: #1e293b; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        
+        /* Navigation Top Bar */
+        .top-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #334155; padding-bottom: 12px; margin-bottom: 20px; }
+        .btn-dashboard { background: #334155; color: #38bdf8; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; font-size: 14px; border: 1px solid #38bdf8; transition: 0.3s; }
+        .btn-dashboard:hover { background: #38bdf8; color: #0f172a; }
+
+        h2 { margin: 0; color: #38bdf8; font-size: 20px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 5px; color: #94a3b8; font-size: 13px; font-weight: bold; }
+        input, select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: #fff; box-sizing: border-box; font-size: 14px; }
+        input:focus, select:focus { outline: none; border-color: #38bdf8; }
+        
+        button { width: 100%; padding: 12px; background: #0284c7; color: #fff; border: none; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 15px; }
+        button:hover { background: #0369a1; }
+
+        .result-card { margin-top: 25px; padding: 20px; background: #0f172a; border-radius: 10px; border: 1px solid #38bdf8; }
+        .section-box { background: #1e293b; padding: 15px; border-radius: 8px; margin-top: 12px; border-left: 4px solid #38bdf8; }
+        .drawing-box { text-align: center; background: #0f172a; padding: 15px; border-radius: 8px; margin-top: 15px; border: 1px dashed #38bdf8; }
+        .joint-info { background: #334155; padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 13px; color: #facc15; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- டேஷ்போர்டு இணைப்பு -->
+    <div class="top-bar">
+        <h2>🏠 ROOFING CALCULATOR</h2>
+        <a href="/dashboard" class="btn-dashboard">⬅️ Back to Dashboard</a>
+    </div>
+
+    <form method="POST">
+        <!-- 1. வாடிக்கையாளர் விவரங்கள் -->
+        <div class="grid-2">
+            <div class="form-group"><label>கஸ்டமர் பெயர்:</label><input type="text" name="customer_name" required></div>
+            <div class="form-group"><label>தெரு / இடம்:</label><input type="text" name="location" required></div>
+        </div>
+        <div class="form-group"><label>ஊர்:</label><input type="text" name="city" required></div>
+
+        <!-- 2. தள அளவுகள் -->
+        <div class="grid-2">
+            <div class="form-group"><label>மொத்த நீளம் (அடி):</label><input type="number" step="0.1" name="length" required></div>
+            <div class="form-group"><label>மொத்த அகலம் (அடி):</label><input type="number" step="0.1" name="width" required></div>
+        </div>
+
+        <!-- 3. கூரை வகை தேர்வு -->
+        <div class="form-group">
+            <label>கூரை வகை (Roof Type):</label>
+            <select name="roof_type" id="roof_type" onchange="toggleRoofFields()">
+                <option value="single_slope">ஒற்றை சாய்வு கூரை (Single Slope Roofing)</option>
+                <option value="curved_roof">வளைவு கூரை (Curved / Arch Roof)</option>
+            </select>
+        </div>
+
+        <!-- 4. தூண் உயரங்கள் (முன்பக்கம் & பின்பக்கம்) -->
+        <div class="grid-2">
+            <div class="form-group">
+                <label id="front_pillar_label">முன்பக்க (உயரமான) தூண் உயரம் (அடி):</label>
+                <input type="number" step="0.1" name="front_pillar_height" value="12">
+            </div>
+            <div class="form-group" id="back_pillar_group">
+                <label id="back_pillar_label">பின்பக்க (குறைவான) தூண் உயரம் (அடி):</label>
+                <input type="number" step="0.1" name="back_pillar_height" value="10">
+            </div>
+        </div>
+
+        <!-- 5. தாங்கு கம்பி இடைவெளி & பர்லின் வரி இடைவெளி -->
+        <div class="grid-2">
+            <div class="form-group">
+                <label>பிரதான தாங்கு கம்பி இடைவெளி (Main Frame Gap):</label>
+                <input type="number" step="0.1" name="frame_gap" value="10.0" placeholder="Default: 10 அடி">
+            </div>
+            <div class="form-group">
+                <label>சீட் தாங்கும் பர்லின் வரி இடைவெளி (Purlin Gap):</label>
+                <select name="purlin_gap">
+                    <option value="3.5">3.5 அடி இடைவெளி (Standard)</option>
+                    <option value="3.0">3.0 அடி இடைவெளி</option>
+                    <option value="4.0">4.0 அடி இடைவெளி</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 6. சீட் வகை & தூண் அமைப்பு -->
+        <div class="grid-2">
+            <div class="form-group">
+                <label>சீட் வகை:</label>
+                <select name="sheet_type">
+                    <option value="Color Coated Sheet">கலர் கோட்டேட் மெட்டல் சீட்</option>
+                    <option value="Asbestos Sheet">ஆஸ்பெஸ்டாஸ் சீட்டு</option>
+                    <option value="Polycarbonate Sheet">பாலிகார்பனேட் சீட்டு</option>
+                    <option value="UPVC Sheet">யுபிவிசி சீட்டு</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>தூண் அமைப்பு:</label>
+                <select name="pillar_support_type">
+                    <option value="four_pillar">4 தூண்கள் (Standard)</option>
+                    <option value="two_pillar_wall">2 தூண் + பின்புற சுவர்</option>
+                    <option value="wall_only">சுவர் ஆதரவு மட்டும்</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 7. தூண் மெட்டீரியல் & பைப் அளவுகள் -->
+        <div class="grid-2">
+            <div class="form-group">
+                <label>தூண் மெட்டீரியல்:</label>
+                <select name="pillar_material">
+                    <option value="GI Square Pipe">ஜிபி சதுர பைப்</option>
+                    <option value="GI Round Pipe">ஜிபி ரவுண்டு பைப்</option>
+                    <option value="MS Square Pipe">எம்எஸ் சதுர பைப்</option>
+                    <option value="cement">சிமெண்ட் தூண்</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>தாங்கு பைப் சைஸ் (Main Frame Pipe):</label>
+                <select name="main_frame_pipe">
+                    <option value='2" x 2"'>2" x 2"</option>
+                    <option value='3" x 1.5"'>3" x 1.5"</option>
+                    <option value='3" x 3"'>3" x 3"</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>சீட் தாங்கும் பர்லின் பைப் சைஸ் (Purlin Pipe):</label>
+            <select name="purlin_pipe">
+                <option value='1.5" x 1.5"'>1.5" x 1.5"</option>
+                <option value='2" x 1"'>2" x 1"</option>
+                <option value='2" x 2"'>2" x 2"</option>
+            </select>
+        </div>
+
+        <button type="submit">கணக்கிடு (Calculate Roofing)</button>
+    </form>
+
+    {% if result %}
+    <div class="result-card">
+        <h3 style="color:#facc15; margin-top:0;">📊 கூரை கணக்கீட்டு முடிவுகள்</h3>
+        <p>👤 <strong>கஸ்டமர்:</strong> {{ result.customer_name }} | 📍 {{ result.location }}, {{ result.city }}</p>
+        <p>📐 <strong>மொத்த பரப்பளவு:</strong> {{ result.total_sqft }} Sq.Ft ({{ result.length }}' x {{ result.width }}')</p>
+
+        <!-- எளிய கூரை வரைபடம் (Roof Diagram) -->
+        <div class="drawing-box">
+            <h4 style="color:#38bdf8; margin-top:0;">📐 எளிய கூரை வடிவமைப்பு (Roofing Design)</h4>
+            <svg width="300" height="130" viewBox="0 0 300 130">
+                {% if result.roof_type == 'single_slope' %}
+                    <!-- Single Slope Roofing -->
+                    <line x1="40" y1="110" x2="40" y2="30" stroke="#facc15" stroke-width="4"/>
+                    <line x1="260" y1="110" x2="260" y2="70" stroke="#facc15" stroke-width="4"/>
+                    <line x1="25" y1="25" x2="275" y2="65" stroke="#38bdf8" stroke-width="4"/>
+                    <text x="15" y="70" fill="#fff" font-size="10">{{ result.front_pillar_height }}'</text>
+                    <text x="270" y="90" fill="#fff" font-size="10">{{ result.back_pillar_height }}'</text>
+                {% else %}
+                    <!-- Curved Arch Roof -->
+                    <line x1="40" y1="110" x2="40" y2="60" stroke="#facc15" stroke-width="4"/>
+                    <line x1="260" y1="110" x2="260" y2="60" stroke="#facc15" stroke-width="4"/>
+                    <path d="M 30 60 Q 150 20 270 60" fill="none" stroke="#38bdf8" stroke-width="4"/>
+                {% endif %}
+            </svg>
+        </div>
+
+        <div class="section-box">
+            <p>🏠 <strong>கூரை வகை:</strong> {{ result.roof_type_text }}</p>
+            <p>• <strong>தாங்கு தூண்கள் ({{ result.pillar_count }} எண்ணிக்கை):</strong> {{ result.pillar_pipes_count }} பைப்புகள் (முன்: {{ result.front_pillar_height }}' / பின்: {{ result.back_pillar_height }}')</p>
+            <p>• <strong>பிரதான தாங்கு பைப்புகள் ({{ result.main_frame_pipe }}):</strong> {{ result.main_frame_pipes_count }} பைப்புகள் ({{ result.frame_gap }}' இடைவெளியில்)</p>
+            <p>• <strong>சீட் தாங்கும் பர்லின் பைப்புகள் ({{ result.purlin_pipe }}):</strong> {{ result.purlin_pipes_count }} பைப்புகள் ({{ result.purlin_rows }} வரிகள் - {{ result.purlin_gap }}' இடைவெளியில்)</p>
+            <p>• <strong>தேவைப்படும் சீட்கள்:</strong> {{ result.total_sheets }} ஷீட்கள் ({{ result.sheet_type }})</p>
+        </div>
+
+        <!-- வெட்டு துண்டுகள் மற்றும் ஜாயிண்ட் விபரம் -->
+        <div class="joint-info">
+            ♻️ <strong>பைப் வெட்டு துண்டுகள் பயன்பாடு (Cutting Waste & Joint Logic):</strong><br>
+            20 അടി பைப்புகளில் மீதமாகும் வெட்டுத் துண்டுகள் தூண் ஜாயிண்டுகளுக்கும், தாங்கு ஃபிரேம் இணைப்புகளுக்கும் பயன்படுத்தப்பட கணக்கிடப்பட்டுள்ளது.
+        </div>
+
+        <div style="margin-top: 15px; background: #0284c7; padding: 12px; border-radius: 6px; text-align: center;">
+            <strong style="font-size:16px;">📦 தேவைப்படும் மொத்த 20 அடி பைப்புகள்: {{ result.overall_total_pipes }} பைப்புகள்</strong>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; margin-top:15px; background:#1e293b; padding:10px; border-radius:6px;">
+            <p style="margin:0;">💵 <strong>லேபர் காண்ட்ராக்ட்:</strong> <span style="color:#4ade80;">₹ {{ result.labor_cost }}</span></p>
+            <p style="margin:0;">💰 <strong>முழு காண்ட்ராக்ட்:</strong> <span style="color:#60a5fa;">₹ {{ result.full_contract_cost }}</span></p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function toggleRoofFields() {
+    var roofType = document.getElementById("roof_type").value;
+    var backPillarGroup = document.getElementById("back_pillar_group");
+    var frontLabel = document.getElementById("front_pillar_label");
+
+    if (roofType === "single_slope") {
+        backPillarGroup.style.display = "block";
+        frontLabel.innerText = "முன்பக்க (உயரமான) தூண் உயரம் (அடி):";
+    } else if (roofType === "curved_roof") {
+        backPillarGroup.style.display = "none";
+        frontLabel.innerText = "தூண் உயரம் (அடி):";
+    }
+}
+</script>
+
+</body>
+</html>
