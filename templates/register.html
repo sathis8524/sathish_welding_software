@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>லாகின் (Login) - VMK Welding</title>
+    <title>பதிவு செய்க (Register) - VMK Welding</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
@@ -76,10 +76,10 @@
     </style>
 </head>
 <body>
-<div class="container my-4" style="max-width: 440px;">
+<div class="container my-4" style="max-width: 480px;">
     <div class="card card-custom p-1">
         <div class="card-header card-header-custom text-white text-center py-3">
-            <h4 class="mb-0 fw-bold text-info"><i class="bi bi-box-arrow-in-right me-2"></i>உள்நுழை (Login)</h4>
+            <h4 class="mb-0 fw-bold text-info"><i class="bi bi-person-plus-fill me-2"></i>புதிய கணக்கு உருவாக்கு</h4>
         </div>
         <div class="card-body p-4">
             {% with messages = get_flashed_messages(with_categories=true) %}
@@ -93,28 +93,29 @@
               {% endif %}
             {% endwith %}
 
-            <form action="{{ url_for('login') }}" method="POST">
+            <form action="{{ url_for('register') }}" method="POST">
                 <div class="mb-3">
-                    <label class="form-label fw-semibold text-light">ஈமெயில் அல்லது மொபைல் எண்</label>
-                    <input type="text" name="user_input" class="form-control form-control-custom form-control-lg fs-6" placeholder="Email / Mobile Number" required>
+                    <label class="form-label fw-semibold text-light">பெயர் (Full Name)</label>
+                    <input type="text" name="full_name" class="form-control form-control-custom form-control-lg fs-6" placeholder="உங்கள் பெயர்" required>
                 </div>
-                <div class="mb-2">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-light">ஈமெயில் ஐடி (Email ID)</label>
+                    <input type="email" name="email" class="form-control form-control-custom form-control-lg fs-6" placeholder="example@gmail.com" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-light">மொபைல் எண் (Mobile Number)</label>
+                    <input type="tel" name="mobile" pattern="[0-9]{10}" class="form-control form-control-custom form-control-lg fs-6" placeholder="10 இலக்க மொபைல் எண்" required>
+                </div>
+                <div class="mb-3">
                     <label class="form-label fw-semibold text-light">பாஸ்வேர்ட் (Password)</label>
-                    <input type="password" name="password" class="form-control form-control-custom form-control-lg fs-6" placeholder="உங்கள் பாஸ்வேர்ட்" required>
+                    <input type="password" name="password" class="form-control form-control-custom form-control-lg fs-6" placeholder="பாஸ்வேர்ட் உருவாக்கவும்" required>
                 </div>
-
-                <div class="d-flex justify-content-end mb-3">
-                    <a href="{{ url_for('forgot_password') }}" class="text-decoration-none small fw-bold text-warning">
-                        Forgot Password?
-                    </a>
-                </div>
-
-                <button type="submit" class="btn btn-custom w-100 py-2 fw-bold fs-5">லாகின் செய் (Login)</button>
+                <button type="submit" class="btn btn-custom w-100 py-2 fw-bold fs-5 mt-2">பதிவு செய் (Register)</button>
             </form>
 
             <hr class="my-4 border-secondary">
-            
-            <p class="text-center mb-3 text-light">கணக்கு இல்லையா? <a href="{{ url_for('register') }}" class="fw-bold text-info text-decoration-none">இங்கே பதிவு செய்யுங்கள்</a></p>
+
+            <p class="text-center mb-3 text-light">ஏற்கனவே கணக்கு உள்ளதா? <a href="{{ url_for('login') }}" class="fw-bold text-info text-decoration-none">லாகின் செய்ய</a></p>
 
             <!-- Back Button at the Bottom -->
             <div class="text-center pt-2">

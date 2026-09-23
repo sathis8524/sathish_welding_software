@@ -215,7 +215,9 @@
         <div class="section-box">
             <p>🛠️ <strong>கூரை / ட்ரஸ் வகை:</strong> {{ result.roof_type_text }}</p>
             <p>• <strong>பிரதான ட்ரஸ் பைப்புகள் ({{ result.main_truss_pipe }}):</strong> <span style="color:#4ade80; font-size:18px; font-weight:bold;">{{ result.truss_pipes_count }} பைப்புகள்</span> (20 அடி - 10% வேஸ்டேஜுடன்)</p>
-            <p>• <strong>தாங்கு தூண்கள் ({{ result.pillar_count }} எண்ணிக்கை):</strong> {{ result.pillar_pipes_count }} பைப்புகள் (முன்: {{ result.front_pillar_height }}' / பின்: {{ result.back_pillar_height }}')</p>
+            <!-- <p>• <strong>தாங்கு தூண்கள் ({{ result.pillar_count }} எண்ணிக்கை):</strong> {{ result.pillar_pipes_count }} பைப்புகள் (முன்: {{ result.front_pillar_height }}' / பின்: {{ result.back_pillar_height }}')</p> -->
+            <p>• <strong>தாங்கு தூண்கள்:</strong> {{ result.pillar_summary }}</p>
+            <p>• <strong>தூண் பைப்புகள் (20 அடி):</strong> {{ result.pillar_pipes_count }} எண்கள்</p>
             <p>• <strong>பர்லின் பைப்புகள் ({{ result.purlin_pipe }}):</strong> {{ result.purlin_pipes_count }} பைப்புகள் ({{ result.purlin_rows }} வரிகள்)</p>
             <p>• <strong>தேவைப்படும் சீட்கள்:</strong> {{ result.total_sheets }} ஷீட்கள் ({{ result.sheet_type }})</p>
         </div>

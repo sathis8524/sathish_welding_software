@@ -63,7 +63,7 @@
             </form>
         </div>
     {% else %}
-        
+
         <p style="color:#03dac6; font-weight:bold; font-size: 14px; margin-bottom: 20px;">
             ● Status: Authenticated as Super Developer (Sathish V)
         </p>
@@ -84,31 +84,33 @@
             </div>
         </div>
 
-        <!-- 👥 3. சிஸ்டத்தில் உள்ள அனைத்து லாகின் கணக்குகள் -->
+        <!-- 👥 3. பதிவு செய்த பயனர்கள் மற்றும் லாகின் விபரங்கள் -->
         <div class="card">
             <h3>1. All User Accounts & Access Keys</h3>
             <table class="cost-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th>#</th>
                         <th>Full Name</th>
+                        <th>Email ID</th>
+                        <th>Mobile Number</th>
                         <th>Role</th>
-                        <th>Username</th>
                         <th>Password (Unencrypted)</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for u in users %}
                     <tr>
-                        <td>{{ u.id }}</td>
-                        <td>{{ u.full_name }}</td>
-                        <td>{{ u.role }}</td>
-                        <td><strong>{{ u.username }}</strong></td>
+                        <td>{{ loop.index }}</td>
+                        <td><strong>{{ u.full_name }}</strong></td>
+                        <td>{{ u.email }}</td>
+                        <td>{{ u.mobile }}</td>
+                        <td><span style="color:#03dac6;">{{ u.role }}</span></td>
                         <td style="color:#cf6679;"><strong>{{ u.password }}</strong></td>
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="5" style="text-align:center; color:#888;">கணக்குகள் எதுவும் இல்லை.</td>
+                        <td colspan="6" style="text-align:center; color:#888;">பயனர்கள் யாரும் இன்னும் பதிவு செய்யவில்லை.</td>
                     </tr>
                     {% endfor %}
                 </tbody>

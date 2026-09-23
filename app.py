@@ -6,7 +6,7 @@ app = Flask(__name__)
 app.secret_key = "vmk_roofing_secret_key_2026"
 
 # ---------------------------------------------------------
-# GLOBAL IN-MEMORY DATABASE (தற்காலிக தரவு சேமிப்பகம்)
+# GLOBAL IN-MEMORY DATABASE
 # ---------------------------------------------------------
 HISTORY_DATA = []
 WORKER_DATA = []
@@ -14,34 +14,136 @@ WORKER_DATA = []
 # ---------------------------------------------------------
 # ROUTES
 # ---------------------------------------------------------
-# 1. முதலில் ஆப்பை திறந்ததும் லோகோ & கம்பெனி விவரங்கள் கொண்ட Home Page
 @app.route('/')
 def index():
-    return render_template('home.html')  # அல்லது உங்கள் லோகோ/முகப்பு பக்க HTML பெயர் (index.html / home.html)
+    return render_template('home.html')
+
 
 @app.route('/home')
 def home():
     return render_template('home.html')
 
-# 2. லோகோ கீழே உள்ள 'Login' பட்டனை அழுத்தினால் லாகின் பக்கம் திறக்கும்
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        # பாஸ்வேர்ட் சரிபார்த்து மேலாண்மை மையத்திற்குச் செல்லுதல்
-        password = request.form.get('password')
-        # தேவைப்பட்டால் பாஸ்வேர்ட் சரிபார்ப்பு சேர்க்கலாம்
-        return redirect(url_for('dashboard'))
-    return render_template('login.html')
 
-# 3. பாஸ்வேர்ட் போட்டு லாகின் செய்த பிறகு தான் இந்த மேலாண்மை மையம் ஓபன் ஆகும்
+# @app.route('/login', methods=['GET', 'POST'])
+# def login():
+#     if request.method == 'POST':
+#         password = request.form.get('password')
+#         return redirect(url_for('dashboard'))
+#     return render_template('login.html')
+
 @app.route('/dashboard')
 def dashboard():
     return render_template('dashboard.html')
 
-# @app.route('/home')
-# def home():
-#     return redirect(url_for('dashboard'))
+# ---------------------------------------------------------
+# USERS DATABASE & AUTH ROUTES
+# ---------------------------------------------------------
 
+# பயனர்களின் தரவை சேமிக்க (Dummy In-Memory Data)
+USERS_DB = {
+    'sathish_admin': {
+        'full_name': 'Sathish V',
+        'email': 'sathish@example.com',
+        'mobile': '9876543210',
+        'password': '123',
+        'role': 'Super Developer'
+    }
+}
+
+# 1. REGISTER ROUTE (புதிய பயனர் பதிவு)
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        full_name = request.form.get('full_name', '').strip()
+        email = request.form.get('email', '').strip()
+        mobile = request.form.get('mobile', '').strip()
+        password = request.form.get('password', '').strip()
+
+        if not full_name or not email or not mobile or not password:
+            flash("அனைத்து விவரங்களையும் (Fields) நிரப்பவும்!", "danger")
+            return render_template('register.html')
+
+        # ஈமெயில் அல்லது மொபைல் ஏற்கனவே உள்ளதா என சரிபார்த்தல்
+        for user in USERS_DB.values():
+            if user.get('email') == email:
+                flash("இந்த ஈமெயில் ஐடி ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது!", "warning")
+                return render_template('register.html')
+            if user.get('mobile') == mobile:
+                flash("இந்த மொபைல் எண் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது!", "warning")
+                return render_template('register.html')
+
+        # புதிய பயனரைச் சேமித்தல்
+        USERS_DB[email] = {
+            'full_name': full_name,
+            'email': email,
+            'mobile': mobile,
+            'password': password,
+            'role': 'User'
+        }
+
+        flash("Registration Successful! பதிவு வெற்றிகரமாக முடிந்தது. இப்போது லாகின் செய்யலாம்.", "success")
+        return redirect(url_for('login'))
+
+    return render_template('register.html')
+
+
+# 2. LOGIN ROUTE (ஈமெயில் அல்லது மொபைல் எண் + பாஸ்வேர்ட் வைத்து லாகின்)
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        user_input = request.form.get('user_input', '').strip()  # Email or Mobile
+        password = request.form.get('password', '').strip()
+
+        found_user = None
+        for user in USERS_DB.values():
+            if (user.get('email') == user_input or user.get('mobile') == user_input) and user.get('password') == password:
+                found_user = user
+                break
+
+        if found_user:
+            session['user_logged_in'] = True
+            session['email'] = found_user['email']
+            session['full_name'] = found_user['full_name']
+            flash(f"வரவேற்கிறோம் {found_user['full_name']}!", "success")
+            return redirect(url_for('dashboard'))
+        else:
+            flash("தவறான ஈமெயில்/மொபைல் எண் அல்லது பாஸ்வேர்ட்!", "danger")
+            return render_template('login.html')
+
+    return render_template('login.html')
+
+
+# 3. FORGOT PASSWORD ROUTE (பாஸ்வேர்ட் ரீசெட் செய்யும் பகுதி)
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        user_input = request.form.get('user_input', '').strip() # Email or Mobile
+        new_password = request.form.get('new_password', '').strip()
+
+        found_user = None
+        for user in USERS_DB.values():
+            if user.get('email') == user_input or user.get('mobile') == user_input:
+                found_user = user
+                break
+
+        if found_user:
+            # புதிய பாஸ்வேர்ட்டை அப்டேட் செய்தல்
+            found_user['password'] = new_password
+            flash("உங்கள் பாஸ்வேர்ட் வெற்றிகரமாக மாற்றப்பட்டது! புதிய பாஸ்வேர்ட் மூலம் லாகின் செய்யவும்.", "success")
+            return redirect(url_for('login'))
+        else:
+            flash("இந்த ஈமெயில் அல்லது மொபைல் எண் பதிவில் இல்லை!", "danger")
+            return render_template('forgot_password.html')
+
+    return render_template('forgot_password.html')
+
+
+# 4. LOGOUT ROUTE (வெளியேறுதல்)
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash("வெற்றிகரமாக வெளியேறிவிட்டீர்கள்!", "info")
+    return redirect(url_for('login'))
 
 # ---------------------------------------------------------
 # 1. TRUSS CALCULATOR ROUTE
@@ -54,21 +156,20 @@ def truss_calculator():
             customer_name = request.form.get('customer_name', 'Guest Customer')
             location = request.form.get('location', '')
             city = request.form.get('city', '')
-            
+
             length = float(request.form.get('length', 0))
             width = float(request.form.get('width', 0))
             roof_type = request.form.get('roof_type', 'double_slope')
             frame_gap = float(request.form.get('frame_gap', 4))
-            
+
             specific_height = float(request.form.get('specific_height', 3))
             front_pillar_height = float(request.form.get('front_pillar_height', 10))
-            back_pillar_height = float(request.form.get('back_pillar_height', 10))
-            pillar_count = int(request.form.get('pillar_count', 4))
-            
+            back_pillar_height = float(request.form.get('back_pillar_height', 8))
+
             purlin_pipe = request.form.get('purlin_pipe', '1.5x1.5 Square Pipe')
             purlin_gap = float(request.form.get('purlin_gap', 3))
             sheet_type = request.form.get('sheet_type', 'Color Coated Sheet')
-            
+
             labor_rate_sqft = float(request.form.get('labor_rate', 25))
             full_contract_rate_sqft = float(request.form.get('contract_rate', 180))
 
@@ -94,9 +195,30 @@ def truss_calculator():
             total_truss_feet = truss_pipe_length_per_frame * num_frames
             truss_pipes_count = math.ceil((total_truss_feet * 1.10) / 20.0)
 
-            # Pillars
-            total_pillar_feet = ((front_pillar_height + back_pillar_height) / 2.0) * pillar_count
-            pillar_pipes_count = math.ceil((total_pillar_feet * 1.05) / 20.0)
+            # --- Pillars Calculation (10 feet spacing & High/Low Slope logic) ---
+            support_type = request.form.get('support_type', 'all_pillars')
+            pillars_one_side = int(math.ceil(length / 10.0)) + 1 if length > 0 else 2
+
+            if roof_type == 'double_slope':
+                if support_type == 'one_side_wall':
+                    total_pillars = pillars_one_side
+                else:
+                    total_pillars = pillars_one_side * 2
+                total_pillar_feet = total_pillars * front_pillar_height
+                pillar_summary = f"மொத்தம் {total_pillars} தூண்கள் (உயரம்: {front_pillar_height} அடி)"
+            else:
+                if support_type == 'one_side_wall':
+                    total_pillars = pillars_one_side
+                    total_pillar_feet = total_pillars * back_pillar_height
+                    pillar_summary = f"மொத்தம் {total_pillars} தூண்கள் (உயரம்: {back_pillar_height} அடி)"
+                else:
+                    high_pillars_count = pillars_one_side
+                    low_pillars_count = pillars_one_side
+                    total_pillars = high_pillars_count + low_pillars_count
+                    total_pillar_feet = (high_pillars_count * front_pillar_height) + (low_pillars_count * back_pillar_height)
+                    pillar_summary = f"உயரமான தூண் ({front_pillar_height} அடி): {high_pillars_count} எண்கள், குறைவான தூண் ({back_pillar_height} அடி): {low_pillars_count} எண்கள் (மொத்தம்: {total_pillars} தூண்கள்)"
+
+            pillar_pipes_count = math.ceil((total_pillar_feet * 1.05) / 20.0) if total_pillar_feet > 0 else 0
 
             # Purlins
             total_slope_width = rafter_length * (2 if roof_type == 'double_slope' else 1)
@@ -131,7 +253,8 @@ def truss_calculator():
                 'specific_height': specific_height,
                 'front_pillar_height': front_pillar_height,
                 'back_pillar_height': back_pillar_height,
-                'pillar_count': pillar_count,
+                'total_pillars': total_pillars,
+                'pillar_summary': pillar_summary,
                 'truss_pipes_count': truss_pipes_count,
                 'pillar_pipes_count': pillar_pipes_count,
                 'purlin_pipe': purlin_pipe,
@@ -144,7 +267,6 @@ def truss_calculator():
                 'full_contract_cost': f"{full_contract_cost:,}"
             }
 
-            # Save to History Database
             HISTORY_DATA.insert(0, result)
 
         except Exception as e:
@@ -164,21 +286,20 @@ def roof_calculator():
             customer_name = request.form.get('customer_name', 'Guest Customer')
             location = request.form.get('location', '')
             city = request.form.get('city', '')
-            
+
             length = float(request.form.get('length', 0))
             width = float(request.form.get('width', 0))
             roof_type = request.form.get('roof_type', 'single_slope')
             frame_gap = float(request.form.get('frame_gap', 4))
-            
+
             specific_height = float(request.form.get('specific_height', 2))
             front_pillar_height = float(request.form.get('front_pillar_height', 10))
             back_pillar_height = float(request.form.get('back_pillar_height', 8))
-            pillar_count = int(request.form.get('pillar_count', 4))
-            
+
             purlin_pipe = request.form.get('purlin_pipe', '1.5x1.5 Square Pipe')
             purlin_gap = float(request.form.get('purlin_gap', 3))
             sheet_type = request.form.get('sheet_type', 'Color Coated Sheet')
-            
+
             labor_rate_sqft = float(request.form.get('labor_rate', 20))
             full_contract_rate_sqft = float(request.form.get('contract_rate', 150))
 
@@ -201,9 +322,30 @@ def roof_calculator():
 
             main_frame_pipes_count = math.ceil((main_frame_pipes_feet * 1.08) / 20.0)
 
-            # Pillars
-            total_pillar_feet = ((front_pillar_height + back_pillar_height) / 2.0) * pillar_count
-            pillar_pipes_count = math.ceil((total_pillar_feet * 1.05) / 20.0)
+            # --- Pillars Calculation (10 feet spacing & High/Low Slope logic) ---
+            support_type = request.form.get('support_type', 'all_pillars')
+            pillars_one_side = int(math.ceil(length / 10.0)) + 1 if length > 0 else 2
+
+            if roof_type == 'double_slope':
+                if support_type == 'one_side_wall':
+                    total_pillars = pillars_one_side
+                else:
+                    total_pillars = pillars_one_side * 2
+                total_pillar_feet = total_pillars * front_pillar_height
+                pillar_summary = f"மொத்தம் {total_pillars} தூண்கள் (உயரம்: {front_pillar_height} அடி)"
+            else:
+                if support_type == 'one_side_wall':
+                    total_pillars = pillars_one_side
+                    total_pillar_feet = total_pillars * back_pillar_height
+                    pillar_summary = f"மொத்தம் {total_pillars} தூண்கள் (உயரம்: {back_pillar_height} அடி)"
+                else:
+                    high_pillars_count = pillars_one_side
+                    low_pillars_count = pillars_one_side
+                    total_pillars = high_pillars_count + low_pillars_count
+                    total_pillar_feet = (high_pillars_count * front_pillar_height) + (low_pillars_count * back_pillar_height)
+                    pillar_summary = f"உயரமான தூண் ({front_pillar_height} அடி): {high_pillars_count} எண்கள், குறைவான தூண் ({back_pillar_height} அடி): {low_pillars_count} எண்கள் (மொத்தம்: {total_pillars} தூண்கள்)"
+
+            pillar_pipes_count = math.ceil((total_pillar_feet * 1.05) / 20.0) if total_pillar_feet > 0 else 0
 
             # Purlins
             total_slope_width = rafter_length * (2 if roof_type == 'double_slope' else 1)
@@ -237,7 +379,8 @@ def roof_calculator():
                 'specific_height': specific_height,
                 'front_pillar_height': front_pillar_height,
                 'back_pillar_height': back_pillar_height,
-                'pillar_count': pillar_count,
+                'total_pillars': total_pillars,
+                'pillar_summary': pillar_summary,
                 'main_frame_pipes_count': main_frame_pipes_count,
                 'pillar_pipes_count': pillar_pipes_count,
                 'purlin_pipe': purlin_pipe,
@@ -261,29 +404,20 @@ def roof_calculator():
 # ---------------------------------------------------------
 # 3. WORKER ENTRY ROUTE
 # ---------------------------------------------------------
-# ---------------------------------------------------------
-# WORKER & CUSTOMER PAYMENT DATA
-# ---------------------------------------------------------
-WORKER_DATA = []
-
-
 @app.route('/worker_entry', methods=['GET', 'POST'])
 @app.route('/attendance', methods=['GET', 'POST'])
 def worker_entry():
     if request.method == 'POST':
         try:
-            # 1. தள & கஸ்டமர் பணப் பரிவர்த்தனை விவரங்கள்
             attendance_date = request.form.get('attendance_date') or datetime.now().strftime("%Y-%m-%d")
             customer_name = request.form.get('customer_name', '')
             location = request.form.get('location', '')
             work_details = request.form.get('work_details', '')
 
-            # கஸ்டமர் பேமெண்ட் கணக்கு
             total_agreed = float(request.form.get('total_agreed') or 0)
             received_amount = float(request.form.get('received_amount') or 0)
             customer_balance = total_agreed - received_amount
 
-            # 2. தொழிலாளர்கள் பட்டியல்
             workers_list = []
             for i in range(1, 6):
                 w_name = request.form.get(f'worker{i}_name', '').strip()
@@ -321,8 +455,9 @@ def worker_entry():
     today_str = datetime.now().strftime("%Y-%m-%d")
     return render_template('worker_entry.html', workers=WORKER_DATA, today_date=today_str)
 
+
 # ---------------------------------------------------------
-# 4. HISTORY ROUTE (வாடிக்கையாளர்களின் பட்டியல்)
+# 4. HISTORY ROUTE
 # ---------------------------------------------------------
 @app.route('/history')
 def history():
@@ -330,7 +465,7 @@ def history():
 
 
 # ---------------------------------------------------------
-# 5. ESTIMATE DETAIL ROUTE (கஸ்டமரின் முழு வரைபடம் & விவரம்)
+# 5. ESTIMATE DETAIL ROUTE
 # ---------------------------------------------------------
 @app.route('/estimate_detail/<int:item_id>')
 def estimate_detail(item_id):
@@ -343,10 +478,7 @@ def estimate_detail(item_id):
 
 
 # ---------------------------------------------------------
-# RUN FLASK APP
-# ---------------------------------------------------------
-# ---------------------------------------------------------
-# SATHISH V - MASTER DEVELOPER CONTROL ROUTE
+# 6. MASTER DEVELOPER CONTROL ROUTE
 # ---------------------------------------------------------
 @app.route('/developer_control', methods=['GET', 'POST'])
 def developer_control():
@@ -357,7 +489,6 @@ def developer_control():
         master_key = request.form.get('master_key')
         action = request.form.get('action')
 
-        # 1. ரகசிய மாஸ்டர் பின் சரிபார்ப்பு (PIN: 8524)
         if master_key:
             if master_key == '8524':
                 session['developer_authenticated'] = True
@@ -366,7 +497,6 @@ def developer_control():
             else:
                 msg = "❌ Invalid Master Secret Key!"
 
-        # 2. உள்நுழைந்த பிறகு செய்யும் செயல்கள் (Authenticated Actions)
         elif authenticated:
             if action == 'save_settings':
                 truss_labor_rate = float(request.form.get('truss_labor_rate') or 25)
@@ -401,13 +531,9 @@ def developer_control():
                 WORKER_DATA.clear()
                 msg = "VMK Roofing ஆப்பின் அனைத்து தரவுகளும் வெற்றிகரமாக ரீசெட் செய்யப்பட்டன!"
 
-    # மாதிரி பயனர் பட்டியல் (System Users)
-    sample_users = [
-        {'id': 1, 'full_name': 'Sathish V', 'role': 'Super Developer', 'username': 'sathish_admin', 'password': app.config.get('ADMIN_PASSWORD', 'admin123')},
-        {'id': 2, 'full_name': 'Site Supervisor', 'role': 'Staff User', 'username': 'vmk_staff', 'password': 'user123'}
-    ]
+    # உண்மையாக பதிவு செய்த பயனர்கள் (USERS_DB) + Dummy Admin பயனர்களை ஒன்றாகக் காட்டுதல்
+    all_users = list(USERS_DB.values()) if 'USERS_DB' in globals() else []
 
-    # ஆப்பின் புள்ளிவிவரங்கள்
     total_pending = sum(item.get('customer_balance', 0) for item in WORKER_DATA)
     stats = {
         'total_estimates': len(HISTORY_DATA),
@@ -419,7 +545,7 @@ def developer_control():
         'developer_control.html',
         authenticated=authenticated,
         msg=msg,
-        users=sample_users,
+        users=all_users,
         logs=WORKER_DATA,
         stats=stats
     )

@@ -171,7 +171,9 @@
 
         <div class="section-box">
             <p>🏠 <strong>கூரை வகை:</strong> {{ result.roof_type_text }}</p>
-            <p>• <strong>தாங்கு தூண்கள் ({{ result.pillar_count }} எண்ணிக்கை):</strong> {{ result.pillar_pipes_count }} பைப்புகள் (முன்: {{ result.front_pillar_height }}' / பின்: {{ result.back_pillar_height }}')</p>
+            <!-- <p>• <strong>தாங்கு தூண்கள் ({{ result.pillar_count }} எண்ணிக்கை):</strong> {{ result.pillar_pipes_count }} பைப்புகள் (முன்: {{ result.front_pillar_height }}' / பின்: {{ result.back_pillar_height }}')</p> -->
+            <p>• <strong>தாங்கு தூண்கள்:</strong> {{ result.pillar_summary }}</p>
+            <p>• <strong>தூண் பைப்புகள் (20 அடி):</strong> {{ result.pillar_pipes_count }} எண்கள்</p>
             <p>• <strong>பிரதான தாங்கு பைப்புகள் ({{ result.main_frame_pipe }}):</strong> {{ result.main_frame_pipes_count }} பைப்புகள் ({{ result.frame_gap }}' இடைவெளியில்)</p>
             <p>• <strong>சீட் தாங்கும் பர்லின் பைப்புகள் ({{ result.purlin_pipe }}):</strong> {{ result.purlin_pipes_count }} பைப்புகள் ({{ result.purlin_rows }} வரிகள் - {{ result.purlin_gap }}' இடைவெளியில்)</p>
             <p>• <strong>தேவைப்படும் சீட்கள்:</strong> {{ result.total_sheets }} ஷீட்கள் ({{ result.sheet_type }})</p>
