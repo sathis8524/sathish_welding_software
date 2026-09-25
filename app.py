@@ -239,6 +239,7 @@ def truss_calculator():
 
             result = {
                 'id': len(HISTORY_DATA),
+                'user_email': session.get('email', 'guest'),  # லாகின் செய்த பயனரின் ஈமெயில்
                 'calc_type': 'Truss',
                 'customer_name': customer_name,
                 'location': location,
@@ -365,6 +366,7 @@ def roof_calculator():
 
             result = {
                 'id': len(HISTORY_DATA),
+                'user_email': session.get('email', 'guest'),  # லாகின் செய்த பயனரின் ஈமெயில்
                 'calc_type': 'Roofing',
                 'customer_name': customer_name,
                 'location': location,
@@ -461,8 +463,17 @@ def worker_entry():
 # ---------------------------------------------------------
 @app.route('/history')
 def history():
-    return render_template('history.html', history=HISTORY_DATA)
+    # பயனர் லாகின் செய்யவில்லை என்றால் லாகின் பக்கத்திற்கு மாற்றும்
+    if not session.get('user_logged_in'):
+        flash("வரலாற்றைப் பார்க்க முதலில் லாகின் செய்யவும்!", "warning")
+        return redirect(url_for('login'))
 
+    current_user_email = session.get('email')
+    
+    # லாகின் செய்த நபரின் எஸ்டிமேட்களை மட்டும் பிரித்தெடுக்கும்
+    user_history = [item for item in HISTORY_DATA if item.get('user_email') == current_user_email]
+
+    return render_template('history.html', history=user_history)
 
 # ---------------------------------------------------------
 # 5. ESTIMATE DETAIL ROUTE
