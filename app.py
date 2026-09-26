@@ -439,6 +439,7 @@ def worker_entry():
 
             if workers_list or customer_name:
                 WORKER_DATA.insert(0, {
+                    'user_email': session.get('email', 'guest'),
                     'date': attendance_date,
                     'customer_name': customer_name,
                     'location': location,
@@ -449,7 +450,18 @@ def worker_entry():
                     'workers': workers_list
                 })
 
-            return redirect(url_for('worker_entry'))
+            # லாகின் செய்த பயனரின் Worker Data-வை மட்டும் பிரித்தெடுத்தல்
+            current_user_email = session.get('email')
+            if current_user_email:
+                user_workers = [item for item in WORKER_DATA if item.get('user_email') == current_user_email]
+
+            else:
+                user_workers = []    
+
+            today_str = datetime.now().strftime("%Y-%m-%d")
+            return render_template('worker_entry.html', workers=user_workers, today_date=today_str)    
+
+            # return redirect(url_for('worker_entry'))
 
         except Exception as e:
             print(f"Error saving entry: {e}")
